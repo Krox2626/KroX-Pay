@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <link rel="manifest" href="manifest.json">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="apple-mobile-web-app-title" content="KroX.Pay">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#000000">
+<title>NetPublic — Calculateur</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #000000;
+    --surface: #1c1c1e;
+    --surface2: #2c2c2e;
+    --border: rgba(255, 255, 255, 0.1);
+    --accent: #0a84ff;
+    --text: #ffffff;
+    --muted: #8e8e93;
+    --green: #30d158;
+    --red: #ff453a;
+    --font-main: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  }
+  
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-font-smoothing: antialiased; }
+  
+  body { 
+    background: var(--bg); 
+    color: var(--text); 
+    font-family: var(--font-main); 
+    line-height: 1.4;
+    padding-bottom: 40px;
+  }
+
+  .container {
+  max-width: 520px;
+  margin: 0 auto;
+  padding: 32px 16px;
+}
+
+  header { text-align: center; margin-bottom: 32px; }
+  h1 { font-size: 26px; font-weight: 700; letter-spacing: -0.5px; margin-bottom: 4px; }
+  h1 span { color: var(--accent); }
+  .subtitle { font-size: 14px; color: var(--muted); }
+
+  /* Segments iOS */
+  .statut-toggle { 
+    display: flex; 
+    background: var(--surface2); 
+    border-radius: 12px; 
+    padding: 2px; 
+    margin-bottom: 24px; 
+  }
+  .statut-btn { 
+    flex: 1; 
+    padding: 10px 0; 
+    border: none; 
+    border-radius: 10px; 
+    background: transparent; 
+    color: var(--text); 
+    font-size: 14px; 
+    font-weight: 600; 
+    cursor: pointer; 
+    transition: all 0.2s; 
+  }
+  .statut-btn.active { 
+    background: #636366; 
+    box-shadow: 0 3px 8px rgba(0,0,0,0.3);
+  }
+
+  /* Cards - Espaces réguliers */
+  .card { 
+    background: var(--surface); 
+    border-radius: 20px; 
+    padding: 24px; 
+    margin-bottom: 16px; /* Espace constant entre les blocs */
+  }
+  .card-title { 
+    font-size: 13px; 
+    font-weight: 600; 
+    color: var(--muted); 
+    text-transform: uppercase; 
+    margin-bottom: 20px; 
+    letter-spacing: 0.5px;
+  }
+
+  /* Champs de saisie - Alignement iOS */
+  .field { margin-bottom: 24px; }
+  .field:last-child { margin-bottom: 0; }
+  .field label { display: block; font-size: 15px; font-weight: 500; margin-bottom: 10px; color: var(--text); }
+  
+  .input-wrap { position: relative; display: flex; align-items: center; }
+  .input-wrap input, .input-wrap select { 
+    width: 100%; 
+    height: 52px; /* Hauteur standard iOS */
+    background: var(--surface2); 
+    border: 1px solid transparent;
+    border-radius: 14px; 
+    padding: 0 16px; 
+    color: var(--text); 
+    font-size: 17px; 
+    font-family: inherit;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .input-wrap input:focus { border-color: var(--accent); }
+  .input-unit { position: absolute; right: 16px; color: var(--muted); font-size: 16px; pointer-events: none; }
+
+  .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+  /* Boutons PPCR */
+  .ppcr-selector { display: flex; gap: 8px; margin-top: 4px; }
+  .ppcr-pill {
+    flex: 1; 
+    height: 50px;
+    border-radius: 12px; 
+    background: var(--surface2); 
+    border: 2px solid transparent;
+    color: var(--muted); 
+    font-size: 11px; 
+    font-weight: 700; 
+    cursor: pointer; 
+    text-align: center;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1.2;
+  }
+  .ppcr-pill.active { border-color: var(--accent); color: var(--accent); background: rgba(10, 132, 255, 0.1); }
+
+  /* Bouton d'action principal */
+  .btn-calc { 
+    width: 100%; 
+    height: 60px;
+    background: var(--accent); 
+    border: none; 
+    border-radius: 18px; 
+    color: white; 
+    font-size: 18px; 
+    font-weight: 700; 
+    cursor: pointer; 
+    margin-top: 8px;
+    margin-bottom: 32px;
+    transition: opacity 0.2s, transform 0.1s;
+  }
+  .btn-calc:active {
+  transform: scale(0.97);
+  opacity: 0.85;
+}
+
+.btn-calc {
+  transition: transform 0.15s ease, opacity 0.15s ease;
+}
+
+  /* Section Résultats */
+  #results { display: none; margin-top: 8px; }
+  .result-hero { text-align: center; padding: 40px 0; }
+  .result-label { font-size: 16px; font-weight: 500; color: var(--muted); margin-bottom: 8px; }
+  .result-net { font-size: 56px; font-weight: 800; letter-spacing: -2px; line-height: 1; margin-bottom: 12px; }
+  
+  .list-group { background: var(--surface); border-radius: 20px; overflow: hidden; margin-bottom: 24px; }
+  .list-item { 
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center; 
+    padding: 16px 20px; 
+    border-bottom: 1px solid var(--border); 
+  }
+  .list-item:last-child { border-bottom: none; }
+  .list-item .label { font-size: 16px; color: var(--text); }
+  .list-item .value { font-size: 16px; font-weight: 600; }
+  .list-item .sub { font-size: 11px; color: var(--muted); background: var(--surface2); padding: 2px 8px; border-radius: 6px; margin-left: 8px; font-weight: 600; text-transform: uppercase; }
+
+  .neg { color: var(--red); }
+  .pos { color: var(--green); }
+  .warning { font-size: 13px; color: var(--muted); text-align: center; padding: 0 20px; line-height: 1.5; margin-top: 24px; }
+
+  .section-titulaire, .section-contractuel { display: none; }
+  .show-titulaire .section-titulaire { display: block; }
+  .show-contractuel .section-contractuel { display: block; }
+
+  @media (max-width: 400px) {
+    .field-row { grid-template-columns: 1fr; gap: 20px; }
+  }
+#results {
+  opacity: 0;
+  transform: translateY(10px);
+  transition: all 0.3s ease;
+}
+
+#results.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+header {
+  position: relative;
+}
+
+.logo {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+  filter: brightness(0) saturate(100%) invert(44%) sepia(97%) saturate(2349%) hue-rotate(193deg) brightness(101%) contrast(101%);
+}
+.card {
+  animation: fadeUp 0.35s ease both;
+}
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.card {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card:hover {
+  transform: translateY(-2px);
+}
+@media (min-width: 900px) {
+  body {
+    display: flex;
+    justify-content: center;
+  }
+
+  .container {
+    max-width: 600px;
+    transform: scale(1.05);
+    transform-origin: top center;
+  }
+}
+html, body {
+  height: 100%;
+}
+input, select {
+  font-size: 16px;
+}
+@media (hover: hover) {
+  .btn-calc:hover {
+    opacity: 0.9;
+    transform: scale(1.01);
+  }
+
+  .statut-btn:hover {
+    opacity: 0.8;
+  }
+}
+
+</style>
+</head>
+<body class="show-titulaire">
+
+<div class="container">
+  <header>
+      <img src="logo.png" class="logo">             
+    <h1>KroX.<span>Pay</span></h1>
+    <p class="subtitle">Calculateur de salaire net</p>
+  </header>
+
+  <div class="statut-toggle">
+    <button class="statut-btn active" onclick="setStatut('titulaire')" id="btn-tit">Titulaire</button>
+    <button class="statut-btn" onclick="setStatut('contractuel')" id="btn-cont">Contractuel</button>
+  </div>
+
+  <div id="form-wrap">
+    <div class="card">
+      <div class="card-title">Traitement indiciaire</div>
+      <div class="field section-titulaire">
+        <label>Indice Majoré (IM)</label>
+        <div class="input-wrap">
+          <input type="number" id="indice" min="0" placeholder="ex: 390" oninput="imToSalaire()">
+          <span class="input-unit">pts</span>
+        </div>
+      </div>
+      <div class="field">
+        <label>Salaire brut de base</label>
+        <div class="input-wrap">
+          <input type="number" id="brut-base" min="0" placeholder="0.00" step="0.01">
+          <span class="input-unit">€</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Primes mensuelles</div>
+      <div class="field-row section-titulaire">
+        <div class="field">
+          <label>IFSE</label>
+          <div class="input-wrap"><input type="number" id="ifse" min="0" placeholder="0.00"><span class="input-unit">€</span></div>
+        </div>
+        <div class="field">
+          <label>CIA (1/12è)</label>
+          <div class="input-wrap"><input type="number" id="cia" min="0" placeholder="0.00"><span class="input-unit">€</span></div>
+        </div>
+      </div>
+      <div class="field">
+        <label>Autres (NBI, Primes...)</label>
+        <div class="input-wrap"><input type="number" id="autres-primes" min="0" placeholder="0.00"><span class="input-unit">€</span></div>
+      </div>
+    </div>
+
+    <div class="card section-titulaire">
+      <div class="card-title">Transfert Prime / Point</div>
+      <div class="field">
+        <label>Option PPCR</label>
+        <div class="ppcr-selector">
+          <button type="button" class="ppcr-pill active" id="ppcr-opt-0" onclick="setPpcr(0)">Déjà inclus<br>dans l'IM</button>
+          <button type="button" class="ppcr-pill" id="ppcr-opt-1" onclick="setPpcr(1)">Ajouter au<br>calcul</button>
+          <button type="button" class="ppcr-pill" id="ppcr-opt-2" onclick="setPpcr(2)">Non<br>concerné</button>
+        </div>
+        <div id="ppcr-input-wrap" style="display:none; margin-top:20px">
+          <div class="input-wrap"><input type="number" id="ppcr" min="0" placeholder="Montant PPCR"><span class="input-unit">€</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Ma situation</div>
+      <div class="field-row">
+        <div class="field">
+          <label>Enfants</label>
+          <div class="input-wrap"><input type="number" id="nb-enfants" min="0" max="5" value="0"></div>
+        </div>
+        <div class="field">
+          <label>Temps de travail</label>
+          <div class="input-wrap">
+            <select id="taux-activite">
+              <option value="1">100 %</option>
+              <option value="0.8">80 %</option>
+              <option value="0.5">50 %</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <button class="btn-calc" onclick="calculer()">Calculer mon salaire</button>
+
+    <div id="results">
+      <div class="result-hero">
+        <div class="result-label">Net à payer estimé</div>
+        <div class="result-net" id="res-net">0,00 €</div>
+      </div>
+
+      <div class="card-title" style="margin-left:8px">Détail de la rémunération</div>
+      <div class="list-group" id="brut-list"></div>
+      
+      <div class="card-title" style="margin-left:8px">Retenues salariales</div>
+      <div class="list-group" id="cotis-list"></div>
+
+      <p class="warning">Calcul indicatif basé sur les taux 2025. Vérifiez toujours votre bulletin officiel.</p>
+    </div>
+  </div>
+</div>
+
+<script>
+// Logique de calcul identique à ta version
+const TAUX = { vPoint: 4.92278, sft: [0, 2.29, 73.04, 116.77, 142.48, 168.18], titulaire: { cnracl: 0.1110, csg_ded: 0.0680, csg_rds: 0.0290, assiette: 0.9825 } };
+let statut = 'titulaire';
+let ppcrMode = 0;
+
+function setStatut(s) { statut = s; document.body.className = 'show-' + s; document.getElementById('btn-tit').classList.toggle('active', s === 'titulaire'); document.getElementById('btn-cont').classList.toggle('active', s === 'contractuel'); }
+function imToSalaire() {
+  const im = parseFloat(document.getElementById('indice').value) || 0;
+  const brut = document.getElementById('brut-base');
+
+  if (im > 0) {
+    brut.value = (im * TAUX.vPoint).toFixed(2);
+  } else {
+    brut.value = '';
+  }
+}
+function setPpcr(mode) { ppcrMode = mode; [0,1,2].forEach(i => document.getElementById('ppcr-opt-'+i).classList.toggle('active', i === mode)); document.getElementById('ppcr-input-wrap').style.display = (mode === 1) ? 'block' : 'none'; }
+function fmt(n) { return n.toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €'; }
+function item(label, value, isNeg = false, sub = '') { return `<div class="list-item"><div class="label">${label}${sub ? '<span class="sub">'+sub+'</span>' : ''}</div><div class="value ${isNeg ? 'neg' : 'pos'}">${isNeg ? '− ' : ''}${fmt(Math.abs(value))}</div></div>`; }
+
+function calculer() {
+  const rawBrut = parseFloat(document.getElementById('brut-base').value) || 0;  if (!isFinite(rawBrut)) return;
+  const tActive = parseFloat(document.getElementById('taux-activite').value);
+  const nEnfants = Math.min(5, parseInt(document.getElementById('nb-enfants').value) || 0);
+  if (rawBrut <= 0) return;
+
+  let totalBrut = 0, totalCotis = 0, brutHtml = '', cotisHtml = '';
+  const sft = TAUX.sft[nEnfants];
+
+  if (statut === 'titulaire') {
+    const base = rawBrut * tActive, ifse = (parseFloat(document.getElementById('ifse').value) || 0) * tActive, cia = (parseFloat(document.getElementById('cia').value) || 0) * tActive, autres = (parseFloat(document.getElementById('autres-primes').value) || 0) * tActive, ppcr = (ppcrMode === 1 ? parseFloat(document.getElementById('ppcr').value) || 0 : 0) * tActive;
+    totalBrut = base + ifse + cia + autres + sft + ppcr;
+    brutHtml += item('Traitement de base', base) + (ifse > 0 ? item('IFSE', ifse, false, 'Indem.') : '') + (cia > 0 ? item('CIA', cia, false, 'Prime') : '') + (autres > 0 ? item('NBI / Autres', autres) : '') + (sft > 0 ? item('SFT', sft, false, nEnfants + ' enfant(s)') : '');
+    const cnracl = base * TAUX.titulaire.cnracl, assietteCsg = totalBrut * TAUX.titulaire.assiette, csgDed = assietteCsg * TAUX.titulaire.csg_ded, csgRds = assietteCsg * TAUX.titulaire.csg_rds;
+    totalCotis = cnracl + csgDed + csgRds;
+    cotisHtml += item('CNRACL', cnracl, true, '11.1%') + item('CSG Déductible', csgDed, true, '6.8%') + item('CSG / CRDS', csgRds, true, '2.9%');
+  } else {
+    const base = rawBrut * tActive, primes = (parseFloat(document.getElementById('autres-primes').value) || 0) * tActive;
+    totalBrut = base + primes + sft;
+    brutHtml += item('Salaire de base', base) + (primes > 0 ? item('Primes', primes) : '') + (sft > 0 ? item('SFT', sft) : '');
+    totalCotis = totalBrut * 0.222;
+    cotisHtml += item('Charges salariales', totalCotis, true, '~22%');
+  }
+  document.getElementById('res-net').textContent = fmt(totalBrut - totalCotis);
+  document.getElementById('brut-list').innerHTML = brutHtml;
+  document.getElementById('cotis-list').innerHTML = cotisHtml;
+  const res = document.getElementById('results');
+res.style.display = 'block';
+res.classList.add('show');
+  window.scrollTo({ top: document.getElementById('results').offsetTop - 20, behavior: 'smooth' });
+}
+document.querySelectorAll('input, select').forEach(el => {
+  el.addEventListener('input', () => {
+    if (document.getElementById('results').style.display === 'block') {
+      calculer();
+    }
+  });
+});
+
+</script>
+</body>
+</html>
