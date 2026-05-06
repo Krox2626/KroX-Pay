@@ -259,6 +259,46 @@ input, select {
     opacity: 0.8;
   }
 }
+@media (min-width: 900px) {
+
+  .container {
+    max-width: 1200px;
+    width: 100%;
+    padding: 40px;
+  }
+
+  #form-wrap {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    align-items: start;
+  }
+
+  .card {
+    margin-bottom: 0;
+  }
+
+  /* Résultats prennent toute la largeur */
+  #results {
+    grid-column: 1 / -1;
+  }
+
+  /* Header reste centré */
+  header {
+    margin-bottom: 20px;
+  }
+
+}
+@media (min-width: 900px) {
+  body {
+    overflow-x: hidden;
+  }
+
+  .card:hover {
+    transform: translateY(-2px);
+    transition: 0.2s ease;
+  }
+}
 
 </style>
 </head>
